@@ -46,13 +46,21 @@ public class ChronoActivity3 extends AppCompatActivity {
         final Observer<Long> elapsedTimeObserver = new Observer<Long>() {
             @Override
             public void onChanged(@Nullable final Long aLong) {
-                String newText = ChronoActivity3.this.getResources().getString(
-                        R.string.seconds, aLong);
+                String newText = ChronoActivity3.this.getResources()
+                        .getString(
+                                R.string.seconds,
+                                aLong
+                        );
+
                 ((TextView) findViewById(R.id.timer_textview)).setText(newText);
+
                 Log.d("ChronoActivity3", "Updating timer");
             }
         };
 
-        //TODO: observe the ViewModel's elapsed time
+        mLiveDataTimerViewModel.getElapsedTime().observe(
+                this,
+                elapsedTimeObserver
+        );
     }
 }
