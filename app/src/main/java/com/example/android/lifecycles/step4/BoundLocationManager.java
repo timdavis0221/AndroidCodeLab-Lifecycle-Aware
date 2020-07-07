@@ -16,8 +16,11 @@
 
 package com.example.android.lifecycles.step4;
 
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
+
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -32,19 +35,28 @@ public class BoundLocationManager {
     }
 
     @SuppressWarnings("MissingPermission")
+    /**
+     * A wrapper of the LocationManager that registers and unregisters
+     * based on changes to the status of the activity
+     */
     static class BoundLocationListener implements LifecycleObserver {
         private final Context mContext;
         private LocationManager mLocationManager;
         private final LocationListener mListener;
 
-        public BoundLocationListener(LifecycleOwner lifecycleOwner,
-                                     LocationListener listener, Context context) {
+        public BoundLocationListener(
+                LifecycleOwner lifecycleOwner,
+                LocationListener listener,
+                Context context
+        ) {
             mContext = context;
             mListener = listener;
-            //TODO: Add lifecycle observer
+            lifecycleOwner.getLifecycle().addObserver(this);
         }
 
-        //TODO: Call this on resume
+        // The observer is brought to the current state of the provider,
+        // so there's no need to call addLocationListener() from the constructor
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         void addLocationListener() {
             // Note: Use the Fused Location Provider from Google Play Services instead.
             // https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderApi
@@ -62,7 +74,7 @@ public class BoundLocationManager {
             }
         }
 
-        //TODO: Call this on pause
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
         void removeLocationListener() {
             if (mLocationManager == null) {
                 return;
